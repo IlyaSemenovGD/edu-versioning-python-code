@@ -6,7 +6,7 @@ from workflow import LoanProcessingWorkflow
 
 @pytest.mark.asyncio
 async def test_successful_replay():
-    with open("tests/history_for_original_execution.json", "r") as fh:
+    with open("history_for_original_execution.json", "r") as fh:
         history = fh.read()
     replayer = Replayer(workflows=[LoanProcessingWorkflow])
     await replayer.replay_workflow(

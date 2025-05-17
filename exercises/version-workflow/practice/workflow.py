@@ -17,15 +17,19 @@ class LoanProcessingWorkflow:
             f"started process_loan workflow for customer: {info.customer_id}"
         )
 
-        await workflow.execute_activity_method(
-            LoanProcessingActivities.send_thank_you_to_customer,
-            info,
-            start_to_close_timeout=timedelta(seconds=5),
-        )
-
-        # TODO add the call to `workflow.patched here`
-        # TODO add the conditional statement to check if the Workflow patch is False
+        # DONE add the call to `workflow.patched here`
+        # DONE add the conditional statement to check if the Workflow patch is False
         # and send the thank you
+
+        is_patched = workflow.patched("moved-thank-you-after-loop:")
+        
+        if not is_patched:
+            await workflow.execute_activity_method(
+                LoanProcessingActivities.send_thank_you_to_customer,
+                info,
+                start_to_close_timeout=timedelta(seconds=5),
+            )
+
         total_paid = 0
         for period in range(1, info.number_of_periods + 1):
             charge_input = ChargeInput(
@@ -47,6 +51,13 @@ class LoanProcessingWorkflow:
             )
 
             await asyncio.sleep(3)
+
+        if is_patched:
+            await workflow.execute_activity_method(
+                LoanProcessingActivities.send_thank_you_to_customer,
+                info,
+                start_to_close_timeout=timedelta(seconds=5),
+            )
 
         # TODO add the conditional statement to check if the Workflow patch is True
         # and send the thank you
